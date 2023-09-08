@@ -66,7 +66,9 @@ void Scheduler::tickConsumer()
         spdlog::debug("consumed tick");
         m_Ready = false;
         if (m_MessageBroker)
+        {
             spdlog::debug("publishing tick message");
-        m_MessageBroker->Publish(MESSAGE_TYPE::TICK_MESSAGE);
+            m_MessageBroker->Publish(MESSAGE_TYPE::TICK_MESSAGE);
+        }
     }
 }
