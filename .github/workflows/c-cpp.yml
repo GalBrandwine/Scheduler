@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: configure
-      run: cmake --build /home/gal/dev/Scheduler/build --config Debug --target all --
-    - name: make
-      run: ctest -j14 -C Debug -T test --output-on-failure
+    - name: build
+      run: mkdir build && cmake --build /home/gal/dev/Scheduler/build --config Debug --target all --
+    - name: runTests
+      run: cd build && ctest -j14 -C Debug -T test --output-on-failure
