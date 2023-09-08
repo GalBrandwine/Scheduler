@@ -7,8 +7,9 @@ This scheduler will implement a timer, and components could attach themselves to
 
 * Revisit multithreading concurrency
 * TDD approach
-* Software design fundamentals
+* Other software design fundamentals
 * Also I want to improve cmake understanding
+  * And guess what? - I've learned about `FetchContent_Declare` and `FetchContent_MakeAvailable` methods!
 
 ## Revisiting Design patterns
 
