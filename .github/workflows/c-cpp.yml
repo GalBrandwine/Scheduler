@@ -14,6 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: build
-      run: mkdir build && cmake --build build --config Debug --target all --
+      run: cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ -S/Scheduler -B/build -G Ninja
+    - name: Configure
+      working-directory: build/
+      run: cmake --build . --config Debug --target all --
     - name: runTests
-      run: cd build && ctest -j14 -C Debug -T test --output-on-failure
+      working-directory: build/
+      run: ctest -j14 -C Debug -T test --output-on-failure
