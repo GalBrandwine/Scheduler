@@ -5,37 +5,84 @@ include(CTest)
 enable_testing()
 
 # ----------------------------------------------------------------
-# Broker library
+# Worker library
 # ----------------------------------------------------------------
-add_library(Broker SHARED
-  src/libBroker/Scheduler.cpp
-  src/libBroker/Broker.cpp)
-
-target_include_directories(Broker PUBLIC
-  ${PROJECT_SOURCE_DIR}/src/libBroker
-  ${spdlog_SOURCE_DIR}/include
+message("Building Worker library")
+add_library(Worker STATIC
+  src/libWorker/Worker.cpp
 )
 
-target_link_libraries(Broker PUBLIC
-  ${spdlog_BINARY_DIR}
+target_include_directories(Worker
+  PUBLIC ${PROJECT_SOURCE_DIR}/src/libWorker
 )
 
-# Adding target_compile_definition for Broker
-target_compile_definitions(Broker PRIVATE GALS_PRIVATE_DEFINITION)
+target_link_libraries(Worker
+  PUBLIC Broker
+)
 
-# ---------------------------------Adding unittests to Broker------------------------------------------------------
-message("Building unittests for Broker::Scheduler")
+# ---------------------------------Adding unittests to Worker------------------------------------------------------
+message("Building unittests for Worker")
+add_executable(worker_test
+  tests/worker_tests/worker_test.cpp
+)
+
+target_link_libraries(worker_test
+  PRIVATE Worker
+  PRIVATE GTest::gtest_main
+)
+
+add_test(worker_test worker_test)
+
+# ---------------------------------END: Adding unittests to Worker------------------------------------------------------
+# ---------------------------------End: Worker library------------------------------------------------------
+
+# ----------------------------------------------------------------
+# Scheduler library
+# ----------------------------------------------------------------
+message("Building Scheduler library")
+add_library(Scheduler STATIC
+  src/libScheduler/Scheduler.cpp)
+
+target_include_directories(Scheduler
+  PUBLIC ${PROJECT_SOURCE_DIR}/src/libScheduler
+)
+
+target_link_libraries(Scheduler
+  PUBLIC Broker
+)
+
+# ---------------------------------Adding unittests to Scheduler------------------------------------------------------
+message("Building unittests for Scheduler")
 add_executable(scheduler_test
   tests/broker_tests/scheduler_test.cpp
 )
 
-target_link_libraries(scheduler_test PRIVATE
-  Broker
-  GTest::gtest_main
+target_link_libraries(scheduler_test
+  PRIVATE Scheduler
+  PRIVATE GTest::gtest_main
 )
+
 add_test(scheduler_test scheduler_test)
 
-# ---------------------------------END: Adding unittests to Broker------------------------------------------------------
+# ---------------------------------END: Adding unittests to Scheduler------------------------------------------------------
+
+# ----------------------------------------------------------------
+# Broker library
+# ----------------------------------------------------------------
+message("Building Broker library")
+add_library(Broker SHARED
+  src/libBroker/Broker.cpp)
+
+target_include_directories(Broker
+  PUBLIC ${PROJECT_SOURCE_DIR}/src/libBroker
+)
+
+target_link_libraries(Broker
+  PUBLIC spdlog
+)
+
+# Adding target_compile_definition for Broker
+target_compile_definitions(Broker PRIVATE GALS_PRIVATE_DEFINITION)
 
 # ----------------------------------------------------------------
 # END: Broker library
@@ -55,6 +102,7 @@ add_test(scheduler_test scheduler_test)
 # target_link_libraries(Broker PUBLIC spdlog::spdlog $<$<BOOL:${MINGW}>:ws2_32>)
 # ---------------------------------END: Adding spdlog ad precompiled target------------------------------------------------------
 include(FetchContent)
+message("Fetching content: spdlog")
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -63,6 +111,7 @@ FetchContent_Declare(
 set(SPDLOG_BUILD_SHARED ON CACHE BOOL "" FORCE)
 
 # Very cool way for Fetching gtest
+message("Fetching content: googletest")
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
@@ -70,8 +119,7 @@ FetchContent_Declare(
   # GIT_TAG        703bd9caab50b139428cea1aaff9974ebee5742e # release-1.10.0
   GIT_TAG origin/main
 )
-FetchContent_MakeAvailable(googletest spdlog)
-
+FetchContent_MakeAvailable(spdlog googletest)
 include(GoogleTest)
 
 # GoogleTest requires at least C++14

@@ -30,7 +30,7 @@ public:
     // Following rule of 3:
     // - Since I have implemented my own destructor, I should implement also:
     // - Copyconsturctor
-    // - Copyassinment
+    // - Copy assignment
     ~Scheduler();
     Scheduler(const Scheduler &other) // II. copy constructor
     {
